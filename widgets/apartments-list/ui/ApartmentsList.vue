@@ -1,7 +1,6 @@
-
 <script setup lang="ts">
-import { type apartmentsItem } from '~/entities/apartment/types';
-import { getImage } from '~/shared/lib/get-image';
+import { type apartmentsItem } from "~/entities/apartment/types";
+import { getImage } from "~/shareds/lib/get-image";
 
 const props = defineProps<{
   items: apartmentsItem[];
