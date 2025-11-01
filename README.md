@@ -1,9 +1,30 @@
+# Nuxt Apartments Filter
+
+This project is a page with a catalog of apartments featuring filtering by various criteria. Built with Nuxt 3 and Vue 3, using Pinia for state management.
+
 <img width="1259" height="767" alt="{BC5B99B8-F0B0-4DE3-BEC4-AC46174EB599}" src="https://github.com/user-attachments/assets/2a17dc41-cdc6-46fb-bc0c-e72cd8da5dd0" />
 
 
-# Nuxt Minimal Starter
+---
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+## Features
+
+- Display a list of apartments
+- Filter apartments by price, area, and other parameters
+- Smooth updates of the list when filters change
+- Slider component for selecting ranges (vue-3-slider-component)
+
+---
+
+## Technologies
+
+- **Nuxt 3** – framework based on Vue 3 for SSR and SSG  
+- **Vue 3** – modern frontend framework  
+- **Pinia** – global state management  
+- **vue-3-slider-component** – range slider component  
+- **Sass/SCSS** – styling  
+
+---
 
 ## Setup
 
