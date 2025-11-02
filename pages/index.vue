@@ -10,9 +10,9 @@ import ApartmentsTopFilter from "~/widgets/apartments-top-filter/ui/ApartmentsTo
 
 const apartmentsStore = useApartmentsStore();
 
-const resetFilters = () => {
+const resetFilters = (): void => {
   apartmentsStore.resetFilters();
-  apartmentsStore.resetRomms();
+  apartmentsStore.resetRooms();
 };
 
 onMounted(() => {

@@ -1,14 +1,17 @@
 export const debounce = <T extends (...args: any[]) => any>(
   func: T,
   wait: number
-) => {
-  let timeout: ReturnType<typeof setTimeout>;
+): ((...args: Parameters<T>) => void) => {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+  
   return function (...args: Parameters<T>) {
-    const later = () => {
+    if (timeout !== null) {
       clearTimeout(timeout);
+    }
+    
+    timeout = setTimeout(() => {
       func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
+      timeout = null;
+    }, wait);
   };
 };

@@ -6,18 +6,18 @@ const props = defineProps<{
   items: apartmentsItem[];
 }>();
 
-const formatSquare = (square: number) => {
-  return square.toLocaleString("ru-RU");
-};
-
-const formatPrice = (price: number) => {
-  return price.toLocaleString("ru-RU");
+const formatNumber = (value: number): string => {
+  return value.toLocaleString("ru-RU");
 };
 </script>
 
 <template>
   <div class="apartments-list">
-    <div class="apartments-item" v-for="item in props.items" :key="item.id">
+    <div
+      v-for="item in items"
+      :key="item.id"
+      class="apartments-item"
+    >
       <div class="apartments-item__image">
         <img :src="getImage(item.image)" alt="item.title" />
       </div>
@@ -26,7 +26,7 @@ const formatPrice = (price: number) => {
         <h3 class="apartments-item__title">{{ item.title }}</h3>
 
         <p class="apartments-item__square">
-          {{ formatSquare(item.square) }}
+          {{ formatNumber(item.square) }}
 
           <span>м²</span>
         </p>
@@ -42,7 +42,7 @@ const formatPrice = (price: number) => {
         </p>
 
         <p class="apartments-item__price">
-          {{ formatPrice(item.price) }}
+          {{ formatNumber(item.price) }}
 
           <span>₽</span>
         </p>

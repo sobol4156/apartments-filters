@@ -16,19 +16,34 @@ export interface FilterState {
   squareRange: [number, number];
 }
 
+interface RoomOption {
+  name: string;
+  value: number;
+  active: boolean;
+  disabled: boolean;
+}
+
+// Константы для фильтров
+const DEFAULT_PRICE_MIN = 5500000;
+const DEFAULT_PRICE_MAX = 18900000;
+const DEFAULT_SQUARE_MIN = 33;
+const DEFAULT_SQUARE_MAX = 123;
+const ITEMS_PER_PAGE = 5;
+const LOAD_MORE_DELAY = 1000;
+const FILTERS_STORAGE_KEY = "apartments-filters";
+
 export const useApartmentsStore = defineStore("apartments", () => {
   const allApartments = ref<apartmentsItem[]>([]);
   const displayedApartments = ref<apartmentsItem[]>([]);
-  const sortedApartments = ref<apartmentsItem[]>([]);
   const filteredApartments = ref<apartmentsItem[]>([]);
   const currentPage = ref(1);
-  const itemsPerPage = ref(5);
+  const itemsPerPage = ref(ITEMS_PER_PAGE);
   const isLoading = ref(false);
   const error = ref<Error | null>(null);
   const sortBy = ref<SortOption>("default");
   const hasInitialized = ref(false);
 
-  const rooms = reactive([
+  const rooms = reactive<RoomOption[]>([
     {
       name: "1к",
       value: 1,
@@ -57,27 +72,26 @@ export const useApartmentsStore = defineStore("apartments", () => {
 
   const filters = ref<FilterState>({
     rooms: [],
-    priceRange: [5500000, 18900000],
-    squareRange: [33, 123],
+    priceRange: [DEFAULT_PRICE_MIN, DEFAULT_PRICE_MAX],
+    squareRange: [DEFAULT_SQUARE_MIN, DEFAULT_SQUARE_MAX],
   });
 
-const initPersistedState = () => {
-  const saved = localStorage.getItem("apartments-filters");
-  if (saved) {
-    try {
-      const parsed = JSON.parse(saved);
-      filters.value = parsed.filters ?? filters.value;
-      sortBy.value = parsed.sortBy ?? "default";
+  const initPersistedState = (): void => {
+    const saved = localStorage.getItem(FILTERS_STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        filters.value = parsed.filters ?? filters.value;
+        sortBy.value = parsed.sortBy ?? "default";
 
-      rooms.forEach((r) => {
-        r.active = filters.value.rooms.includes(r.value);
-      });
-    } catch (e) {
-      console.warn("Ошибка восстановления фильтров:", e);
+        rooms.forEach((room) => {
+          room.active = filters.value.rooms.includes(room.value);
+        });
+      } catch (e) {
+        console.warn("Ошибка восстановления фильтров:", e);
+      }
     }
-  }
-};
-
+  };
 
   const hasMoreItems = computed(() => {
     return displayedApartments.value.length < filteredApartments.value.length;
@@ -103,7 +117,7 @@ const initPersistedState = () => {
   // Автосохранение фильтров при изменении
   const saveFilters = () => {
     localStorage.setItem(
-      "apartments-filters",
+      FILTERS_STORAGE_KEY,
       JSON.stringify({ filters: filters.value, sortBy: sortBy.value })
     );
   };
@@ -123,26 +137,26 @@ const initPersistedState = () => {
 
   const filterApartments = (apartments: apartmentsItem[]): apartmentsItem[] => {
     return apartments.filter((apartment) => {
+      // Фильтр по количеству комнат
       if (filters.value.rooms.length > 0) {
         const roomsCount = parseInt(
-          apartment.title.match(/(\d+)-комнатная/)?.[1] || "0"
+          apartment.title.match(/(\d+)-комнатная/)?.[1] || "0",
+          10
         );
         if (!filters.value.rooms.includes(roomsCount)) {
           return false;
         }
       }
 
-      if (
-        apartment.price < filters.value.priceRange[0] ||
-        apartment.price > filters.value.priceRange[1]
-      ) {
+      // Фильтр по цене
+      const [priceMin, priceMax] = filters.value.priceRange;
+      if (apartment.price < priceMin || apartment.price > priceMax) {
         return false;
       }
 
-      if (
-        apartment.square < filters.value.squareRange[0] ||
-        apartment.square > filters.value.squareRange[1]
-      ) {
+      // Фильтр по площади
+      const [squareMin, squareMax] = filters.value.squareRange;
+      if (apartment.square < squareMin || apartment.square > squareMax) {
         return false;
       }
 
@@ -199,7 +213,7 @@ const initPersistedState = () => {
 
     isLoading.value = true;
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, LOAD_MORE_DELAY));
 
     currentPage.value++;
     const startIndex = 0;
@@ -224,7 +238,7 @@ const initPersistedState = () => {
     saveFilters();
   };
 
-  const resetRomms = () => {
+  const resetRooms = () => {
     rooms.forEach((room) => (room.active = false));
   };
 
@@ -243,8 +257,8 @@ const initPersistedState = () => {
   const resetFilters = () => {
     filters.value = {
       rooms: [],
-      priceRange: [5500000, 18900000],
-      squareRange: [33, 123],
+      priceRange: [DEFAULT_PRICE_MIN, DEFAULT_PRICE_MAX],
+      squareRange: [DEFAULT_SQUARE_MIN, DEFAULT_SQUARE_MAX],
     };
     sortBy.value = "default";
     applyFiltersAndSort();
@@ -254,7 +268,6 @@ const initPersistedState = () => {
   const reset = () => {
     allApartments.value = [];
     displayedApartments.value = [];
-    sortedApartments.value = [];
     filteredApartments.value = [];
     currentPage.value = 1;
     isLoading.value = false;
@@ -263,8 +276,8 @@ const initPersistedState = () => {
     hasInitialized.value = false;
     filters.value = {
       rooms: [],
-      priceRange: [5500000, 18900000],
-      squareRange: [33, 123],
+      priceRange: [DEFAULT_PRICE_MIN, DEFAULT_PRICE_MAX],
+      squareRange: [DEFAULT_SQUARE_MIN, DEFAULT_SQUARE_MAX],
     };
     saveFilters();
   };
@@ -272,7 +285,6 @@ const initPersistedState = () => {
   return {
     allApartments,
     displayedApartments,
-    sortedApartments,
     filteredApartments,
     currentPage,
     itemsPerPage,
@@ -287,7 +299,7 @@ const initPersistedState = () => {
     isEmpty,
     hasNoData,
     fetchApartments,
-    resetRomms,
+    resetRooms,
     loadMore,
     setSortBy,
     setRoomsFilter,

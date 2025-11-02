@@ -7,14 +7,16 @@ import { debounce } from "~/shareds/lib/debounce";
 const apartmentsStore = useApartmentsStore();
 const { filters, rooms } = storeToRefs(apartmentsStore);
 
-// Debounced функции для обновления фильтров
-const debouncedPriceUpdate = debounce((newRange: number[]) => {
-  apartmentsStore.setPriceRange([newRange[0], newRange[1]]);
-}, 300);
+const DEBOUNCE_DELAY = 300;
 
-const debouncedSquareUpdate = debounce((newRange: number[]) => {
+// Debounced функции для обновления фильтров
+const debouncedPriceUpdate = debounce((newRange: [number, number]) => {
+  apartmentsStore.setPriceRange([newRange[0], newRange[1]]);
+}, DEBOUNCE_DELAY);
+
+const debouncedSquareUpdate = debounce((newRange: [number, number]) => {
   apartmentsStore.setSquareRange([newRange[0], newRange[1]]);
-}, 300);
+}, DEBOUNCE_DELAY);
 
 // Обработчики изменения слайдеров
 const handlePriceChange = (newRange: [number, number]) => {
@@ -27,25 +29,34 @@ const handleSquareChange = (newRange: [number, number]) => {
   debouncedSquareUpdate(newRange);
 };
 
-const handleRoomClick = (room: any) => {
+interface RoomOption {
+  name: string;
+  value: number;
+  active: boolean;
+  disabled: boolean;
+}
+
+const handleRoomClick = (room: RoomOption) => {
   if (room.disabled) return;
 
   room.active = !room.active;
 
-  rooms.value.forEach((r) => {
-    if (r.value !== room.value) {
-      r.active = false;
+  rooms.value.forEach((roomOption) => {
+    if (roomOption.value !== room.value) {
+      roomOption.active = false;
     }
   });
 
   // Обновляем фильтр в store
-  const activeRooms = rooms.value.filter((r) => r.active).map((r) => r.value);
+  const activeRooms = rooms.value
+    .filter((roomOption) => roomOption.active)
+    .map((roomOption) => roomOption.value);
   apartmentsStore.setRoomsFilter(activeRooms);
 };
 
 const handleReset = () => {
   // Сбрасываем комнаты
-  apartmentsStore.resetRomms();
+  apartmentsStore.resetRooms();
   // Сбрасываем все фильтры в store
   apartmentsStore.resetFilters();
 };
@@ -55,10 +66,10 @@ const handleReset = () => {
   <div class="apartments-side-filter">
     <div class="apartments-side-filter__rooms">
       <div
-        class="apartments-side-filter__room"
-        :class="{ active: room.active, disabled: room.disabled }"
         v-for="room in rooms"
         :key="room.value"
+        class="apartments-side-filter__room"
+        :class="{ active: room.active, disabled: room.disabled }"
         @click="handleRoomClick(room)"
       >
         <span>{{ room.name }}</span>

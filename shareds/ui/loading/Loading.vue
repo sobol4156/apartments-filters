@@ -6,7 +6,7 @@
 
 <script lang="ts" setup></script>
 
-<style scoped>
+<style lang="scss" scoped>
 .loading {
   display: inline-block;
   width: 40px;
@@ -20,8 +20,8 @@
   position: absolute;
   width: 32px;
   height: 32px;
-  margin: 4px;
-  border: 4px solid #007bff;
+  margin: auto;
+  border: 4px solid $color-main-dark;
   border-radius: 50%;
   border-top-color: transparent;
   animation: spin 1s linear infinite;
@@ -29,7 +29,6 @@
   left: 0;
   right: 0;
   bottom: 0;
-  margin: auto;
 }
 
 @keyframes spin {

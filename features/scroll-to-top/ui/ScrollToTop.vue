@@ -1,24 +1,34 @@
 <script setup lang="ts">
+const SCROLL_THRESHOLD = 400;
+
 const isVisible = ref(false);
 
 const checkScrollPosition = () => {
-  isVisible.value = window.scrollY > 400;
+  if (typeof window !== "undefined") {
+    isVisible.value = window.scrollY > SCROLL_THRESHOLD;
+  }
 };
 
 const scrollToTop = () => {
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
+  if (typeof window !== "undefined") {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
 };
 
 onMounted(() => {
-  window.addEventListener("scroll", checkScrollPosition);
-  checkScrollPosition();
+  if (typeof window !== "undefined") {
+    window.addEventListener("scroll", checkScrollPosition);
+    checkScrollPosition();
+  }
 });
 
 onUnmounted(() => {
-  window.removeEventListener("scroll", checkScrollPosition);
+  if (typeof window !== "undefined") {
+    window.removeEventListener("scroll", checkScrollPosition);
+  }
 });
 </script>
 

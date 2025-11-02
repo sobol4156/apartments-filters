@@ -129,7 +129,6 @@ const handleSort = (field: "square" | "floor" | "price") => {
     display: flex;
     cursor: pointer;
     transition: $transition-base;
-    display: flex;
     gap: 8px;
     align-items: center;
     white-space: nowrap;
