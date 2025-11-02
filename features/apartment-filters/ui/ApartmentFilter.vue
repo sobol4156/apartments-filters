@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import IconClose from "~/shareds/icons/IconClose.vue";
 import VueSlider from "vue-3-slider-component";
-import { useApartmentsStore } from "~/entities/apartment/model/store";
+import {
+  useApartmentsStore,
+  type RoomOption,
+  DEFAULT_PRICE_MIN,
+  DEFAULT_PRICE_MAX,
+  DEFAULT_SQUARE_MIN,
+  DEFAULT_SQUARE_MAX,
+  PRICE_STEP,
+} from "~/entities/apartment/model/store";
 import { debounce } from "~/shareds/lib/debounce";
 
 const apartmentsStore = useApartmentsStore();
@@ -19,24 +27,17 @@ const debouncedSquareUpdate = debounce((newRange: [number, number]) => {
 }, DEBOUNCE_DELAY);
 
 // Обработчики изменения слайдеров
-const handlePriceChange = (newRange: [number, number]) => {
+const handlePriceChange = (newRange: [number, number]): void => {
   filters.value.priceRange = newRange;
   debouncedPriceUpdate(newRange);
 };
 
-const handleSquareChange = (newRange: [number, number]) => {
+const handleSquareChange = (newRange: [number, number]): void => {
   filters.value.squareRange = newRange;
   debouncedSquareUpdate(newRange);
 };
 
-interface RoomOption {
-  name: string;
-  value: number;
-  active: boolean;
-  disabled: boolean;
-}
-
-const handleRoomClick = (room: RoomOption) => {
+const handleRoomClick = (room: RoomOption): void => {
   if (room.disabled) return;
 
   room.active = !room.active;
@@ -54,10 +55,8 @@ const handleRoomClick = (room: RoomOption) => {
   apartmentsStore.setRoomsFilter(activeRooms);
 };
 
-const handleReset = () => {
-  // Сбрасываем комнаты
+const handleReset = (): void => {
   apartmentsStore.resetRooms();
-  // Сбрасываем все фильтры в store
   apartmentsStore.resetFilters();
 };
 </script>
@@ -92,9 +91,9 @@ const handleReset = () => {
         <VueSlider
           :model-value="filters.priceRange"
           @update:model-value="handlePriceChange"
-          :min="5500000"
-          :max="18900000"
-          :step="100000"
+          :min="DEFAULT_PRICE_MIN"
+          :max="DEFAULT_PRICE_MAX"
+          :step="PRICE_STEP"
         />
       </div>
     </div>
@@ -115,8 +114,8 @@ const handleReset = () => {
         <VueSlider
           :model-value="filters.squareRange"
           @update:model-value="handleSquareChange"
-          :min="33"
-          :max="123"
+          :min="DEFAULT_SQUARE_MIN"
+          :max="DEFAULT_SQUARE_MAX"
           :step="1"
         />
       </div>

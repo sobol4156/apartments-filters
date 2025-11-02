@@ -2,6 +2,8 @@
 import { type apartmentsItem } from "~/entities/apartment/types";
 import { getImage } from "~/shareds/lib/get-image";
 
+const TOTAL_FLOORS = 17;
+
 const props = defineProps<{
   items: apartmentsItem[];
 }>();
@@ -35,7 +37,7 @@ const formatNumber = (value: number): string => {
           {{ item.floor }}
 
           <span>
-            из 17
+            из {{ TOTAL_FLOORS }}
 
             <sub>этаж</sub>
           </span>

@@ -8,17 +8,25 @@ import {
 
 const apartmentsStore = useApartmentsStore();
 
-const handleSort = (field: "square" | "floor" | "price") => {
+type SortField = "square" | "floor" | "price";
+
+const handleSort = (field: SortField): void => {
   const currentSort = apartmentsStore.sortBy;
+  const ascSort = `${field}_asc` as SortOption;
+  const descSort = `${field}_desc` as SortOption;
+  
   let newSort: SortOption;
 
-  // Логика переключения сортировки
-  if (currentSort === `${field}_asc`) {
-    newSort = `${field}_desc` as SortOption;
-  } else if (currentSort === `${field}_desc`) {
-    newSort = "default";
-  } else {
-    newSort = `${field}_asc` as SortOption;
+  // Логика переключения сортировки: asc -> desc -> default -> asc
+  switch (currentSort) {
+    case ascSort:
+      newSort = descSort;
+      break;
+    case descSort:
+      newSort = "default";
+      break;
+    default:
+      newSort = ascSort;
   }
 
   apartmentsStore.setSortBy(newSort);

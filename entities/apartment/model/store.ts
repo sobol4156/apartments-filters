@@ -16,7 +16,7 @@ export interface FilterState {
   squareRange: [number, number];
 }
 
-interface RoomOption {
+export interface RoomOption {
   name: string;
   value: number;
   active: boolean;
@@ -24,13 +24,20 @@ interface RoomOption {
 }
 
 // Константы для фильтров
-const DEFAULT_PRICE_MIN = 5500000;
-const DEFAULT_PRICE_MAX = 18900000;
-const DEFAULT_SQUARE_MIN = 33;
-const DEFAULT_SQUARE_MAX = 123;
+export const DEFAULT_PRICE_MIN = 5500000;
+export const DEFAULT_PRICE_MAX = 18900000;
+export const DEFAULT_SQUARE_MIN = 33;
+export const DEFAULT_SQUARE_MAX = 123;
+export const PRICE_STEP = 100000;
 const ITEMS_PER_PAGE = 5;
 const LOAD_MORE_DELAY = 1000;
 const FILTERS_STORAGE_KEY = "apartments-filters";
+
+// Утилита для извлечения количества комнат из title
+export const extractRoomsCount = (title: string): number => {
+  const match = title.match(/(\d+)-комнатная/);
+  return match ? parseInt(match[1], 10) : 0;
+};
 
 export const useApartmentsStore = defineStore("apartments", () => {
   const allApartments = ref<apartmentsItem[]>([]);
@@ -139,10 +146,7 @@ export const useApartmentsStore = defineStore("apartments", () => {
     return apartments.filter((apartment) => {
       // Фильтр по количеству комнат
       if (filters.value.rooms.length > 0) {
-        const roomsCount = parseInt(
-          apartment.title.match(/(\d+)-комнатная/)?.[1] || "0",
-          10
-        );
+        const roomsCount = extractRoomsCount(apartment.title);
         if (!filters.value.rooms.includes(roomsCount)) {
           return false;
         }
@@ -208,22 +212,28 @@ export const useApartmentsStore = defineStore("apartments", () => {
     }
   };
 
-  const loadMore = async () => {
+  const loadMore = async (): Promise<void> => {
     if (!hasMoreItems.value || isLoading.value) return;
 
     isLoading.value = true;
 
-    await new Promise((resolve) => setTimeout(resolve, LOAD_MORE_DELAY));
+    try {
+      await new Promise((resolve) => setTimeout(resolve, LOAD_MORE_DELAY));
 
-    currentPage.value++;
-    const startIndex = 0;
-    const endIndex = currentPage.value * itemsPerPage.value;
+      currentPage.value++;
+      const startIndex = 0;
+      const endIndex = currentPage.value * itemsPerPage.value;
 
-    displayedApartments.value = filteredApartments.value.slice(
-      startIndex,
-      endIndex
-    );
-    isLoading.value = false;
+      displayedApartments.value = filteredApartments.value.slice(
+        startIndex,
+        endIndex
+      );
+    } catch (err) {
+      console.error("Ошибка при загрузке дополнительных квартир:", err);
+      error.value = err as Error;
+    } finally {
+      isLoading.value = false;
+    }
   };
 
   const setSortBy = (newSortBy: SortOption) => {

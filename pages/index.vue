@@ -15,6 +15,18 @@ const resetFilters = (): void => {
   apartmentsStore.resetRooms();
 };
 
+const shouldShowList = computed(
+  () =>
+    !apartmentsStore.isEmpty &&
+    !apartmentsStore.hasNoData &&
+    !apartmentsStore.error
+);
+
+const shouldShowLoadMore = computed(
+  () =>
+    apartmentsStore.hasMoreItems && !apartmentsStore.isLoading
+);
+
 onMounted(() => {
   apartmentsStore.fetchApartments();
 });
@@ -29,11 +41,7 @@ onMounted(() => {
         <ApartmentsTopFilter />
 
         <ApartmentsList
-          v-if="
-            !apartmentsStore.isEmpty &&
-            !apartmentsStore.hasNoData &&
-            !apartmentsStore.error
-          "
+          v-if="shouldShowList"
           :items="apartmentsStore.displayedApartments"
         />
 
@@ -57,7 +65,7 @@ onMounted(() => {
         </EmptyState>
 
         <Button
-          v-if="apartmentsStore.hasMoreItems && !apartmentsStore.isLoading"
+          v-if="shouldShowLoadMore"
           class="home__button"
           :loading="apartmentsStore.isLoading"
           @click="apartmentsStore.loadMore"
